@@ -79,6 +79,11 @@ class CoinBankSafe(Boxes):
             self.rectangularWall(x, h, "seFf", move="mirror right")
             self.rectangularWall(y, h, "sFFF", move="right")
             self.rectangularWall(x-2*t, h, "sfFh", ignore_widths=[3,4,7,8], move="mirror right")
+            # locking bar
+            with self.saved_context():
+                self.moveTo(0, 4*t)
+                self.rectangularWall(1.5*t, h, "eeef", move="right")
+            self.rectangularWall(1.5*t, h, "eeef", move="right only")
             # door
             self.moveTo(1, 1+t*4)
             self.polyline(
@@ -88,14 +93,19 @@ class CoinBankSafe(Boxes):
                 h, 90)
             num_dials = 3
             space_under_dials = 6*big_radius
-            space_not_between_dials = (h - space_under_dials)
-            dial_spacing = space_not_between_dials / (num_dials + 1)
+            space_not_under_dials = h - space_under_dials
+            dial_spacing = space_not_under_dials / (num_dials + 1)
+            if dial_spacing < 1 :
+                min_height = 6*big_radius + 4
+                raise ValueError(f"With thickness {t}, h must be at least {min_height} to fit the dials.")
+
             self.circleSquareHole(3*t, h/2, 1.25 * t)
             self.circleSquareHole(3*t, h/2 - (2*big_radius + dial_spacing), 1.25 * t)
             self.circleSquareHole(3*t, h/2 + (2*big_radius + dial_spacing), 1.25 * t)
             self.rectangularHole(y/2, h/2, t, handle_length - 2.4*t)
             
         self.rectangularWall(x, h, "seff", move="up only")
+        self.moveTo(0, t/2)
 
         # lid
         with self.saved_context():
@@ -128,9 +138,6 @@ class CoinBankSafe(Boxes):
             self.circleSquareHole(1.75*t, 1.75*t, t)
         self.rectangularWall(y, x, "efff", move="right only")
 
-        # locking bar
-        self.rectangularWall(1.5*t, h, "eeef", move="right")
-
         # locks
         with self.saved_context():
             self.circleSquareHole(big_radius, big_radius, big_radius)
@@ -144,9 +151,8 @@ class CoinBankSafe(Boxes):
             self.circleSquareHole(big_radius, big_radius, big_radius, "D")
             self.moveTo(2 * 0.8 * big_radius + spacing, 0)
             self.circleSquareHole(big_radius, big_radius, big_radius, "D")
-        self.moveTo(0, 2 * big_radius + spacing)
+            self.moveTo(2 * 0.8 * big_radius + spacing, 0)
 
-        with self.saved_context():
             self.circleSquareHole(small_radius, small_radius, small_radius)
             self.moveTo(2 * small_radius + spacing, 0)
             self.circleSquareHole(small_radius, small_radius, small_radius)
@@ -158,7 +164,7 @@ class CoinBankSafe(Boxes):
             self.circleSquareHole(small_radius, small_radius, small_radius, "W")
             self.moveTo(2 * small_radius + spacing, 0)
             self.circleSquareHole(small_radius, small_radius, small_radius, "W")
-        self.moveTo(0, 2 * small_radius + spacing)
+        self.moveTo(0, 2 * big_radius + spacing)
 
         # lock pins
         with self.saved_context():
