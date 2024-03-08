@@ -78,7 +78,15 @@ class CoinBankSafe(Boxes):
         with self.saved_context():
             self.rectangularWall(x, h, "seFf", move="mirror right")
             self.rectangularWall(y, h, "sFFF", move="right")
-            self.rectangularWall(x-2*t, h, "sfFh", ignore_widths=[3,4,7,8], move="mirror right")
+
+            # wall with holes for the locking bar
+            # I don't know what that 0.3 is doing, this equation was derived experimentally
+            # from measuring the correct distances at t=3 and t=6, and doing a regression.
+            # The distance between the holes and the edge should be equal to t plus the distance
+            # between the bottom of the square in the hinge of the lid.
+            self.fingerHolesAt(x - 1.52*t + 0.3, 4.3*t, h, 90)
+            self.rectangularWall(x, h, "sfFe", ignore_widths=[3,4,7,8], move="mirror right")
+
             # locking bar
             with self.saved_context():
                 self.moveTo(0, 4*t)
