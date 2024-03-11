@@ -18,7 +18,14 @@ from boxes import *
 class CoinBankSafe(Boxes):
     """A piggy-bank designed to look like a safe."""
 
-    description = "Assembly note: make sure you keep all of the circle cutouts from the doors, they are all needed as spacers or hinges."
+    description ='''
+When gluing together the dials, you're pretty much guaranteed to get some glue between them and the door.
+Make sure to actuate the dials a couple times while the glue is curing to ensure they can turn at the end.
+
+Make sure not to discard the circle cutouts from the lid, base, and door. They are all needed.
+
+![Open](static/samples/CoinBankSafe-2.jpg)
+'''
     
     ui_group = "Misc"
 
