@@ -27,14 +27,17 @@ class CoinBankSafe(Boxes):
         self.addSettingsArgs(edges.FingerJointSettings)
         self.buildArgParser("x", "y", "h")
         self.argparser.add_argument(
-            "--slotlength", action="store", type=float, default=35,
+            "--slotlength", action="store", type=float, default=30,
             help="Length of the coin slot in mm")
         self.argparser.add_argument(
-            "--slotwidth", action="store", type=float, default=5,
+            "--slotwidth", action="store", type=float, default=4,
             help="Width of the coin slot in mm")
         self.argparser.add_argument(
-            "--handlelength", action="store", type=float, default=6,
+            "--handlelength", action="store", type=float, default=8,
             help="Length of handle in multiples of thickness")
+        self.argparser.add_argument(
+            "--handleclearance", action="store", type=float, default=1.5,
+            help="Clearance of handle in multiples of thickness")
     
     def circleSquareHole(self, x, y, radius, variant=False):
         t = self.thickness
@@ -68,6 +71,7 @@ class CoinBankSafe(Boxes):
         slot_width = self.slotwidth
 
         handle_length = self.handlelength * t
+        handle_clearance = self.handleclearance * t
 
         # lock parameters
         big_radius = 2.25 * t
@@ -80,7 +84,7 @@ class CoinBankSafe(Boxes):
             self.rectangularWall(y, h, "sFFF", move="right")
 
             # wall with holes for the locking bar
-            # I don't know what that 0.3 is doing, this equation was derived experimentally
+            # I don't know what that extra 0.3 is doing, this equation was derived experimentally
             # from measuring the correct distances at t=3 and t=6, and doing a regression.
             # The distance between the holes and the edge should be equal to t plus the distance
             # between the bottom of the square in the hinge of the lid.
@@ -93,11 +97,12 @@ class CoinBankSafe(Boxes):
                 self.rectangularWall(1.5*t, h, "eeef", move="right")
             self.rectangularWall(1.5*t, h, "eeef", move="right only")
             # door
+            door_clearance = .25 * t # amount to shave off of the door width so it can open
             self.moveTo(1, 1+t*4)
             self.polyline(
-                (y - 2.25*t), -90, t, 90, t, 90, t, -90, 1.25*t, 90,
+                (y - 2.25*t - door_clearance), -90, t, 90, t, 90, t, -90, 1.25*t, 90,
                 h, 90,
-                1.25*t, -90, t, 90, t, 90, t, -90, (y - 2.25*t), 90,
+                1.25*t, -90, t, 90, t, 90, t, -90, (y - 2.25*t - door_clearance), 90,
                 h, 90)
             num_dials = 3
             space_under_dials = 6*big_radius
@@ -107,10 +112,10 @@ class CoinBankSafe(Boxes):
                 min_height = 6*big_radius + 4
                 raise ValueError(f"With thickness {t}, h must be at least {min_height} to fit the dials.")
 
-            self.circleSquareHole(3*t, h/2, 1.25 * t)
-            self.circleSquareHole(3*t, h/2 - (2*big_radius + dial_spacing), 1.25 * t)
-            self.circleSquareHole(3*t, h/2 + (2*big_radius + dial_spacing), 1.25 * t)
-            self.rectangularHole(y/2, h/2, t, handle_length - 2.4*t)
+            self.circleSquareHole(3*t - door_clearance, h/2, 1.25 * t)
+            self.circleSquareHole(3*t - door_clearance, h/2 - (2*big_radius + dial_spacing), 1.25 * t)
+            self.circleSquareHole(3*t - door_clearance, h/2 + (2*big_radius + dial_spacing), 1.25 * t)
+            self.rectangularHole(y/2 - door_clearance, h/2, t, handle_length / 2)
             
         self.rectangularWall(x, h, "seff", move="up only")
         self.moveTo(0, t/2)
@@ -127,7 +132,7 @@ class CoinBankSafe(Boxes):
             self.edges["f"](x)
             self.corner(90)
             
-            self.circleSquareHole(y - 1.75*t, 1.75*t, t)
+            self.circleSquareHole(y - 1.75*t, 1.75*t, 1.15*t)
             self.rectangularHole(y/2, x/2, slot_length, slot_width)
         self.rectangularWall(y, x, "efff", move="right only")
 
@@ -143,7 +148,7 @@ class CoinBankSafe(Boxes):
             self.corner(90)
             self.edges["f"](x)
             self.corner(90)
-            self.circleSquareHole(1.75*t, 1.75*t, t)
+            self.circleSquareHole(1.75*t, 1.75*t, 1.15*t)
         self.rectangularWall(y, x, "efff", move="right only")
 
         # locks
@@ -182,21 +187,22 @@ class CoinBankSafe(Boxes):
         self.rectangularWall(5*t, t, move="right only")
 
         # handle
-        self.moveTo(0.4*t,0)
+        handle_curve_radius = 0.2 * t
+        self.moveTo(2 * handle_curve_radius,0)
         self.polyline(
-            handle_length - 0.4*t,
-            (90, 0.2*t),
-            1.3 * t,
+            handle_length - 2 * handle_curve_radius,
+            (90, handle_curve_radius),
+            handle_clearance - handle_curve_radius,
             90,
-            1.2 * t,
+            handle_length / 4,
             -90,
             t,
             90,
-            handle_length - 2.4*t,
+            handle_length / 2,
             90,
             t,
             -90,
-            1.2 * t,
+            handle_length / 4,
             90,
-            1.3*t,
-            (90, 0.2*t))
+            handle_clearance - handle_curve_radius,
+            (90, handle_curve_radius))
