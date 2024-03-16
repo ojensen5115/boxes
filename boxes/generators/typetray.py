@@ -49,7 +49,7 @@ class FingerHoleEdge(edges.BaseEdge):
         width = min(self.settings.absolute_width + length * self.settings.relative_width, length)
         depth = min(self.settings.absolute_depth + self.settings.wallheight * self.settings.relative_depth, self.settings.wallheight)
 
-        r = min(width/2, depth)
+        r = min(width/2, depth, self.settings.radius)
 
         if depth < 1e-9 or width < 1e-9:
             self.boxes.edge(length, tabs=2)
@@ -236,7 +236,7 @@ class TypeTray(_TopEdge):
         if hasattr(self, "label_text"):
             self.textcontent = self.label_text.split("\r\n")
         else:
-            with open(self.label_file, "r") as f:
+            with open(self.label_file) as f:
                 self.textcontent = f.readlines()
         self.textnumber = 0
 
