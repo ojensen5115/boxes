@@ -49,7 +49,12 @@ Make sure not to discard the circle cutouts from the lid, base, and door. They a
     def circleSquareHole(self, x, y, radius, variant=False):
         t = self.thickness
         with self.saved_context():
-            self.rectangularHole(x, y, t, t)
+            self.moveTo(x, y)
+            self.rectangularHole(0, 0, t, t)
+            if variant == "D":
+                self.moveTo(0,0,45)
+                self.rectangularHole(0, 0, t, t)
+        with self.saved_context():
             if not variant:
                 self.circle(x, y, radius)
             elif variant == "D":
@@ -69,6 +74,16 @@ Make sure not to discard the circle cutouts from the lid, base, and door. They a
                 self.moveTo(-t/2, -t/2) # resolve weird margin thing of parts
                 self.parts.waivyKnob(radius*2)
 
+    def drawNumbers(self, radius, cover):
+        fontsize = 0.9 * (radius - cover)
+        with self.saved_context():
+            self.moveTo(radius, radius)
+            for num in range(8):
+                angle = num*45
+                x = (cover + fontsize *0.4) * math.sin(math.radians(angle))
+                y = (cover + fontsize *0.4) * math.cos(math.radians(angle))
+                self.text(str(num+1), align="center middle", fontsize=fontsize, angle=-angle, color=[1,0,0],
+                          y=y, x=x)
 
     def render(self):
         x, y, h = self.x, self.y, self.h
@@ -161,10 +176,13 @@ Make sure not to discard the circle cutouts from the lid, base, and door. They a
         # locks
         with self.saved_context():
             self.circleSquareHole(big_radius, big_radius, big_radius)
+            self.drawNumbers(big_radius, small_radius)
             self.moveTo(2 * big_radius + spacing, 0)
             self.circleSquareHole(big_radius, big_radius, big_radius)
+            self.drawNumbers(big_radius, small_radius)
             self.moveTo(2 * big_radius + spacing, 0)
             self.circleSquareHole(big_radius, big_radius, big_radius)
+            self.drawNumbers(big_radius, small_radius)
             self.moveTo(2 * big_radius + spacing, 0)
             self.circleSquareHole(big_radius, big_radius, big_radius, "D")
             self.moveTo(2 * 0.8 * big_radius + spacing, 0)
