@@ -41,8 +41,11 @@
           default = pkgs.mkShell {
             packages = [
               python
-              pkgs.pre-commit
               pkgs.git
+              # optional: needed only for image thumbnail generation
+              pkgs.imagemagick
+              # optional: needed only for pre-commit hook
+              pkgs.pre-commit
               # optional: needed only for non-SVG output (dxf, plt/hpgl, gcode, ps->pdf)
               pkgs.pstoedit
               pkgs.ghostscript
